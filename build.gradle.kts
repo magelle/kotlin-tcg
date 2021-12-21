@@ -13,7 +13,13 @@ repositories {
 }
 
 dependencies {
+    implementation(platform("io.arrow-kt:arrow-stack:1.0.1"))
+
+    implementation("io.arrow-kt:arrow-core")
+    implementation("io.arrow-kt:arrow-optics")
+
     testImplementation(kotlin("test"))
+    testImplementation("com.willowtreeapps.assertk:assertk-jvm:0.25")
 }
 
 tasks.test {
