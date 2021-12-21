@@ -1,16 +1,19 @@
 package magelle.tcg
 
-fun startGame() = Game(
-    player1 = Player(
-        health = 30,
-        manaSlots = ManaSlots(slots = listOf()),
-        deck = Deck(cards = listOf()),
-        hand = Hand(cards = listOf())
-    ),
-    player2 = Player(
-        health = 30,
-        manaSlots = ManaSlots(slots = listOf()),
-        deck = Deck(cards = listOf()),
-        hand = Hand(cards = listOf())
-    )
+fun createGame(
+    player1Deck: Deck,
+    player2Deck: Deck
+) = Game(
+    player1 = createPlayer(player1Deck),
+    player2 = createPlayer(player2Deck)
+)
+
+fun drawHands(game: Game) = game.copy()
+
+
+private fun createPlayer(player1Deck: Deck) = Player(
+    health = 30,
+    manaSlots = ManaSlots(slots = listOf()),
+    deck = player1Deck,
+    hand = Hand(cards = listOf())
 )
