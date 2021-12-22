@@ -47,6 +47,7 @@ val manaSlots = Lens<ManaSlots, ManaSlots, List<ManaSlot>, List<ManaSlot>>(
     set = { _, slots -> ManaSlots(slots) }
 )
 val allSlots = Traversal.list<ManaSlot>()
+val slotsCount = Getter(List<ManaSlot>::size)
 
 data class Player(
     val health: Int,
@@ -114,3 +115,12 @@ val player1DrawCard = player1.lift(::drawCard)
 val player2DrawCard = player2.lift(::drawCard)
 val player1DrawHand = player1DrawCard compose player1DrawCard compose player1DrawCard
 val player2DrawHand = player2DrawCard compose player2DrawCard compose player2DrawCard
+
+val playerManaSlots = playerMana compose manaSlots
+
+val player1ManaSlots = player1 compose playerManaSlots
+val player2ManaSlots = player2 compose playerManaSlots
+val player1ManaSlotSize = player1ManaSlots compose slotsCount
+val player2ManaSlotSize = player2ManaSlots compose slotsCount
+
+val startPlayerTurn = player1ManaSlots.lift { slots: List<ManaSlot> -> slots + ManaSlot(full = false) }
