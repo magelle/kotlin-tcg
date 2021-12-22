@@ -1,9 +1,8 @@
 package magelle.tcg
 
+import arrow.core.compose
 import arrow.optics.*
-import arrow.optics.typeclasses.Cons
 
-val firstCard = Getter(List<Card>::first)
 
 data class Card(
     val manaCost: Int
@@ -100,4 +99,18 @@ val player2DeckSize = player2 compose playerDeckSize
 val player1HandSize = player1 compose playerHandSize
 val player2HandSize = player2 compose playerHandSize
 
-val firstCardOfDeck = playerDeck compose deckCards compose firstCard
+val playerDeckCards = playerDeck compose deckCards
+val playerHandCards = playerHand compose handCards
+val removeFirstCardOfDeck = playerDeckCards.lift { it.uncons()?.second ?: emptyList() }
+val addCardToHand = { card: Card -> playerHandCards.lift { it + card } }
+
+fun drawCard(player: Player): Player {
+    val headTailsDeck = playerDeckCards.get(player).uncons()!!
+    val draw = removeFirstCardOfDeck compose addCardToHand(headTailsDeck.first)
+    return draw(player)
+}
+
+val player1DrawCard = player1.lift(::drawCard)
+val player2DrawCard = player2.lift(::drawCard)
+val player1DrawHand = player1DrawCard compose player1DrawCard compose player1DrawCard
+val player2DrawHand = player2DrawCard compose player2DrawCard compose player2DrawCard

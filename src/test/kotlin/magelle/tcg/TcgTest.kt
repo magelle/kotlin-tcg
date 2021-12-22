@@ -24,7 +24,7 @@ class TcgTest {
 
     @Test
     fun `From the deck each player receives 3 random cards has his initial hand`() {
-        val game = createGame(aDeck(), aDeck()).let(::drawHands)
+        val game = drawHands(createGame(aDeck(), aDeck()))
 
         assertThat(player1HandSize.get(game)).isEqualTo(3)
         assertThat(player2HandSize.get(game)).isEqualTo(3)

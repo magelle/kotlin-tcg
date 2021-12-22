@@ -1,5 +1,7 @@
 package magelle.tcg
 
+import arrow.core.compose
+
 fun createGame(
     player1Deck: Deck,
     player2Deck: Deck
@@ -8,8 +10,7 @@ fun createGame(
     player2 = createPlayer(player2Deck)
 )
 
-fun drawHands(game: Game) = game.copy()
-
+val drawHands = player1DrawHand compose player2DrawHand
 
 private fun createPlayer(player1Deck: Deck) = Player(
     health = 30,
