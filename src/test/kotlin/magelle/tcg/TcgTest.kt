@@ -30,6 +30,14 @@ class TcgTest {
         assertThat(player2HandSize.get(game)).isEqualTo(3)
     }
 
+    @Test
+    fun `The second player draw a card to compensate handicap to be second`() {
+        val game = drawHandHandicapCard(drawHands(createGame(aDeck(), aDeck())))
+
+        assertThat(player1HandSize.get(game)).isEqualTo(3)
+        assertThat(player2HandSize.get(game)).isEqualTo(4)
+    }
+
     private fun aDeck() =
         Deck(listOf(0, 0, 1, 1, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 5, 5, 6, 6, 7, 8).map { Card(it) })
 
