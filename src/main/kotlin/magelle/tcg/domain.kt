@@ -32,6 +32,7 @@ val handCards = Lens<Hand, Hand, List<Card>, List<Card>>(
 data class ManaSlot(
     val full: Boolean
 )
+val fillManaSlot = { slot: ManaSlot -> slot.copy(full = true) }
 
 val manaSlot = Lens<ManaSlot, ManaSlot, Boolean, Boolean>(
     get = ManaSlot::full,
@@ -48,6 +49,7 @@ val manaSlots = Lens<ManaSlots, ManaSlots, List<ManaSlot>, List<ManaSlot>>(
 )
 val allSlots = Traversal.list<ManaSlot>()
 val slotsCount = Getter(List<ManaSlot>::size)
+val manaCount = Getter { slots: List<ManaSlot> -> slots.filter { it.full }.size }
 
 data class Player(
     val health: Int,
@@ -124,3 +126,7 @@ val player1ManaSlotSize = player1ManaSlots compose slotsCount
 val player2ManaSlotSize = player2ManaSlots compose slotsCount
 
 val startPlayerTurn = player1ManaSlots.lift { slots: List<ManaSlot> -> slots + ManaSlot(full = false) }
+val fillActivePlayerManaSlots = player1ManaSlots.lift { it.map(fillManaSlot) }
+
+val player1Mana = player1ManaSlots compose manaCount
+val player2Mana = player2ManaSlots compose manaCount

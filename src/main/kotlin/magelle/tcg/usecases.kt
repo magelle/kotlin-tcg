@@ -12,7 +12,10 @@ fun createGame(
 
 val drawHands = player1DrawHand compose player2DrawHand
 val drawHandHandicapCard = player2DrawCard
-val startTurn = startPlayerTurn
+val startTurn = { game: Game ->
+    startPlayerTurn(game)
+    .let(fillActivePlayerManaSlots)
+}
 
 private fun createPlayer(player1Deck: Deck) = Player(
     health = 30,

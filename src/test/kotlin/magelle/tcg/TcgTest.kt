@@ -46,6 +46,13 @@ class TcgTest {
         assertThat(player2ManaSlotSize.get(game)).isEqualTo(0)
     }
 
+    @Test
+    fun `The active player’s empty Mana slots are refilled`() {
+        val game = startTurn(drawHandHandicapCard(drawHands(createGame(aDeck(), aDeck()))))
+
+        assertThat(player1Mana.get(game)).isEqualTo(1)
+    }
+
     private fun aDeck() =
         Deck(listOf(0, 0, 1, 1, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 5, 5, 6, 6, 7, 8).map { Card(it) })
 
