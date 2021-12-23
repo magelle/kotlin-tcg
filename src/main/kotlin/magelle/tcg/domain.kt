@@ -3,7 +3,6 @@ package magelle.tcg
 import arrow.core.compose
 import arrow.optics.*
 
-
 data class Card(
     val manaCost: Int
 )
@@ -29,27 +28,20 @@ val handCards = Lens<Hand, Hand, List<Card>, List<Card>>(
     set = { _, cards -> Hand(cards) }
 )
 
-data class ManaSlot(
-    val full: Boolean
-)
-val fillManaSlot = { slot: ManaSlot -> slot.copy(full = true) }
-
-val manaSlot = Lens<ManaSlot, ManaSlot, Boolean, Boolean>(
-    get = ManaSlot::full,
-    set = { _, full -> ManaSlot(full) }
-)
-
 data class ManaSlots(
-    val slots: List<ManaSlot>
+    val slots: Int,
+    val mana: Int
 )
 
-val manaSlots = Lens<ManaSlots, ManaSlots, List<ManaSlot>, List<ManaSlot>>(
-    get = ManaSlots::slots,
-    set = { _, slots -> ManaSlots(slots) }
+val mana = Lens<ManaSlots, ManaSlots, Int, Int>(
+    get = ManaSlots::mana,
+    set = { player, mana -> player.copy(mana = mana) }
 )
-val allSlots = Traversal.list<ManaSlot>()
-val slotsCount = Getter(List<ManaSlot>::size)
-val manaCount = Getter { slots: List<ManaSlot> -> slots.filter { it.full }.size }
+
+val slots = Lens<ManaSlots, ManaSlots, Int, Int>(
+    get = ManaSlots::slots,
+    set = { player, slots -> player.copy(slots = slots) }
+)
 
 data class Player(
     val health: Int,
@@ -113,21 +105,27 @@ fun drawCard(player: Player): Player {
     return draw(player)
 }
 
+val playerManaSlots = playerMana compose slots
+val playerManaCount = playerMana compose mana
+val fillManaSlots = { player: Player ->
+    playerManaCount.set(player, playerManaSlots.get(player))
+}
+
 val player1DrawCard = player1.lift(::drawCard)
 val player2DrawCard = player2.lift(::drawCard)
 val player1DrawHand = player1DrawCard compose player1DrawCard compose player1DrawCard
 val player2DrawHand = player2DrawCard compose player2DrawCard compose player2DrawCard
-
-val playerManaSlots = playerMana compose manaSlots
-
 val player1ManaSlots = player1 compose playerManaSlots
 val player2ManaSlots = player2 compose playerManaSlots
-val player1ManaSlotSize = player1ManaSlots compose slotsCount
-val player2ManaSlotSize = player2ManaSlots compose slotsCount
+val player1Mana = player1 compose playerManaCount
+val player2Mana = player2 compose playerManaCount
 
-val startPlayerTurn = player1ManaSlots.lift { slots: List<ManaSlot> -> slots + ManaSlot(full = false) }
-val fillActivePlayerManaSlots = player1ManaSlots.lift { it.map(fillManaSlot) }
+val addManaSlot = player1ManaSlots.lift(Int::inc)
+val fillActivePlayerManaSlots = player1.lift(fillManaSlots)
 val activePlayerDrawCard = player1DrawCard
 
-val player1Mana = player1ManaSlots compose manaCount
-val player2Mana = player2ManaSlots compose manaCount
+val reduceActivePLayerMana = { manaCost: Int -> player1Mana.lift { mana -> mana - manaCost } }
+
+val activePlayerPlayCard = { card: Card ->
+    reduceActivePLayerMana(card.manaCost)
+}

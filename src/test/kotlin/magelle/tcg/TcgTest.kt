@@ -24,7 +24,8 @@ class TcgTest {
 
     @Test
     fun `From the deck each player receives 3 random cards has his initial hand`() {
-        val game = drawHands(createGame(aDeck(), aDeck()))
+        val game = createGame(aDeck(), aDeck())
+            .let(drawHands)
 
         assertThat(player1HandSize.get(game)).isEqualTo(3)
         assertThat(player2HandSize.get(game)).isEqualTo(3)
@@ -32,7 +33,9 @@ class TcgTest {
 
     @Test
     fun `The second player draw a card to compensate handicap to be second`() {
-        val game = drawHandHandicapCard(drawHands(createGame(aDeck(), aDeck())))
+        val game = createGame(aDeck(), aDeck())
+            .let(drawHands)
+            .let(drawHandHandicapCard)
 
         assertThat(player1HandSize.get(game)).isEqualTo(3)
         assertThat(player2HandSize.get(game)).isEqualTo(4)
@@ -40,24 +43,44 @@ class TcgTest {
 
     @Test
     fun `The active player gain a mana slot a start of turn`() {
-        val game = startTurn(drawHandHandicapCard(drawHands(createGame(aDeck(), aDeck()))))
+        val game = createGame(aDeck(), aDeck())
+            .let(drawHands)
+            .let(drawHandHandicapCard)
+            .let(startTurn)
 
-        assertThat(player1ManaSlotSize.get(game)).isEqualTo(1)
-        assertThat(player2ManaSlotSize.get(game)).isEqualTo(0)
+        assertThat(player1ManaSlots.get(game)).isEqualTo(1)
+        assertThat(player2ManaSlots.get(game)).isEqualTo(0)
     }
 
     @Test
     fun `The active player’s empty Mana slots are refilled`() {
-        val game = startTurn(drawHandHandicapCard(drawHands(createGame(aDeck(), aDeck()))))
+        val game = createGame(aDeck(), aDeck())
+            .let(drawHands)
+            .let(drawHandHandicapCard)
+            .let(startTurn)
 
         assertThat(player1Mana.get(game)).isEqualTo(1)
     }
 
     @Test
     fun `The active player draws a random card from his deck`() {
-        val game = startTurn(drawHandHandicapCard(drawHands(createGame(aDeck(), aDeck()))))
+        val game = createGame(aDeck(), aDeck())
+            .let(drawHands)
+            .let(drawHandHandicapCard)
+            .let(startTurn)
 
         assertThat(player1HandSize.get(game)).isEqualTo(4)
+    }
+
+    @Test
+    fun `Any played card empties Mana slots`() {
+        val game = createGame(aDeck(), aDeck())
+            .let(drawHands)
+            .let(drawHandHandicapCard)
+            .let(startTurn)
+            .let(playCard(Card(1)))
+
+        assertThat(player1Mana.get(game)).isEqualTo(0)
     }
 
     private fun aDeck() =
