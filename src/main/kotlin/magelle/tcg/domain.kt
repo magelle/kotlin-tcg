@@ -127,6 +127,7 @@ val player2ManaSlotSize = player2ManaSlots compose slotsCount
 
 val startPlayerTurn = player1ManaSlots.lift { slots: List<ManaSlot> -> slots + ManaSlot(full = false) }
 val fillActivePlayerManaSlots = player1ManaSlots.lift { it.map(fillManaSlot) }
+val activePlayerDrawCard = player1DrawCard
 
 val player1Mana = player1ManaSlots compose manaCount
 val player2Mana = player2ManaSlots compose manaCount

@@ -53,6 +53,13 @@ class TcgTest {
         assertThat(player1Mana.get(game)).isEqualTo(1)
     }
 
+    @Test
+    fun `The active player draws a random card from his deck`() {
+        val game = startTurn(drawHandHandicapCard(drawHands(createGame(aDeck(), aDeck()))))
+
+        assertThat(player1HandSize.get(game)).isEqualTo(4)
+    }
+
     private fun aDeck() =
         Deck(listOf(0, 0, 1, 1, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 5, 5, 6, 6, 7, 8).map { Card(it) })
 

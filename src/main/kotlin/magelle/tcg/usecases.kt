@@ -15,6 +15,7 @@ val drawHandHandicapCard = player2DrawCard
 val startTurn = { game: Game ->
     startPlayerTurn(game)
     .let(fillActivePlayerManaSlots)
+    .let(activePlayerDrawCard)
 }
 
 private fun createPlayer(player1Deck: Deck) = Player(
