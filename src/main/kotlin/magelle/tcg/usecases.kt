@@ -17,9 +17,7 @@ val startTurn = { game: Game ->
         .let(fillActivePlayerManaSlots)
         .let(activePlayerDrawCard)
 }
-val playCard = { card: Card ->
-    activePlayerPlayCard(card)
-}
+val playCard = activePlayerPlayCard
 
 private fun createPlayer(player1Deck: Deck) = Player(
     health = 30,

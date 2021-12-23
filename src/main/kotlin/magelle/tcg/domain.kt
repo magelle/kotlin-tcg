@@ -119,13 +119,16 @@ val player1ManaSlots = player1 compose playerManaSlots
 val player2ManaSlots = player2 compose playerManaSlots
 val player1Mana = player1 compose playerManaCount
 val player2Mana = player2 compose playerManaCount
+val player1Health = player1 compose playerHealth
+val player2Health = player2 compose playerHealth
 
 val addManaSlot = player1ManaSlots.lift(Int::inc)
 val fillActivePlayerManaSlots = player1.lift(fillManaSlots)
 val activePlayerDrawCard = player1DrawCard
 
 val reduceActivePLayerMana = { manaCost: Int -> player1Mana.lift { mana -> mana - manaCost } }
+val reduceOpponentHealth = { manaCost: Int -> player2Health.lift { health -> health - manaCost } }
 
 val activePlayerPlayCard = { card: Card ->
-    reduceActivePLayerMana(card.manaCost)
+    reduceActivePLayerMana(card.manaCost) compose reduceOpponentHealth(card.manaCost)
 }

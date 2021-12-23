@@ -10,8 +10,8 @@ class TcgTest {
     fun `Each player starts the game with 30 Health and 0 Mana slots`() {
         val game = createGame(aDeck(), aDeck())
 
-        assertThat(game.player1.health).isEqualTo(30)
-        assertThat(game.player2.health).isEqualTo(30)
+        assertThat(player1Health.get(game)).isEqualTo(30)
+        assertThat(player2Health.get(game)).isEqualTo(30)
     }
 
     @Test
@@ -81,6 +81,17 @@ class TcgTest {
             .let(playCard(Card(1)))
 
         assertThat(player1Mana.get(game)).isEqualTo(0)
+    }
+
+    @Test
+    fun `deals immediate damage to the opponent player equal to its Mana cost`() {
+        val game = createGame(aDeck(), aDeck())
+            .let(drawHands)
+            .let(drawHandHandicapCard)
+            .let(startTurn)
+            .let(playCard(Card(1)))
+
+        assertThat(player2Health.get(game)).isEqualTo(30 - 1)
     }
 
     private fun aDeck() =
