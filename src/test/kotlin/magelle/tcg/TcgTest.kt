@@ -188,6 +188,16 @@ class TcgTest {
         assertThat(winner.get(game)).isEqualTo(Some(2))
     }
 
+    @Test
+    fun `Bleeding Out - If a player's card deck is empty before the game is over he receives 1 damage instead of drawing a card when it's his turn`() {
+        val game = createGame(aDeck(listOf(0, 0, 0)), aDeck())
+            .let(drawHands)
+            .let(drawHandHandicapCard)
+            .let(startTurn)
+
+        assertThat(player1Health.get(game)).isEqualTo(29)
+    }
+
     private fun aDeck(cards: List<Int> = listOf(0, 0, 1, 1, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 5, 5, 6, 6, 7, 8)) =
         Deck(cards.map { Card(it) })
 

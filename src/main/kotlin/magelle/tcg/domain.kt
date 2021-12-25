@@ -131,11 +131,14 @@ val playerHandCards = playerHand compose handCards
 val removeFirstCardOfDeck = playerDeckCards.lift { it.uncons()?.second ?: emptyList() }
 val addCardToHand = { card: Card -> playerHandCards.lift { it + card } }
 
-fun drawCard(player: Player): Player {
-    val headTailsDeck = playerDeckCards.get(player).uncons()!!
-    val draw = removeFirstCardOfDeck compose addCardToHand(headTailsDeck.first)
-    return draw(player)
-}
+val bleedingOut = playerHealth.lift(Int::dec)
+fun drawCard(player: Player): Player =
+    playerDeckCards.get(player).uncons()
+        ?.let { headTailsDeck ->
+            val draw = removeFirstCardOfDeck compose addCardToHand(headTailsDeck.first)
+            draw(player)
+        }
+        ?: run { bleedingOut(player) }
 
 val playerManaSlots = playerMana compose slots
 val playerManaCount = playerMana compose mana
@@ -155,6 +158,7 @@ val player2Mana = player2 compose playerManaCount
 val activePlayerMana = activePlayer compose playerManaCount
 val player1Health = player1 compose playerHealth
 val player2Health = player2 compose playerHealth
+val activePlayerHealth = activePlayer compose playerHealth
 val opponentPlayerHealth = opponentPlayer compose playerHealth
 val activePlayerHand = activePlayer compose playerHand compose handCards
 
