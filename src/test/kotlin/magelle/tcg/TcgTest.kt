@@ -137,6 +137,18 @@ class TcgTest {
         assertThat(player2HandSize.get(game)).isEqualTo(5 - 1)
     }
 
+    @Test
+    fun `next player end turn`() {
+        val game = createGame(aDeck(), aDeck())
+            .let(drawHands)
+            .let(drawHandHandicapCard)
+            .let(endTurn)
+            .let(startTurn)
+            .let(endTurn)
+
+        assertThat(activePlayer.get(game)).isEqualTo(player1.get(game))
+    }
+
     private fun aDeck() =
         Deck(listOf(0, 0, 1, 1, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 5, 5, 6, 6, 7, 8).map { Card(it) })
 
