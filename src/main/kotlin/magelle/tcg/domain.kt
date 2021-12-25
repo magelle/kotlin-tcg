@@ -1,5 +1,7 @@
 package magelle.tcg
 
+import arrow.core.None
+import arrow.core.Some
 import arrow.core.compose
 import arrow.optics.*
 
@@ -176,5 +178,17 @@ val nextPlayer = activePlayerNumber.lift {
         1 -> 2
         2 -> 1
         else -> throw IllegalStateException("Should not got there :S")
+    }
+}
+
+val player1Won = Getter { game: Game -> player2Health.get(game) <= 0 }
+val player2Won = Getter { game: Game -> player1Health.get(game) <= 0 }
+val isGameOver = Getter { game: Game -> player1Won.get(game) || player2Won.get(game) }
+
+val winner = Getter { game: Game ->
+    when {
+        player1Won.get(game) -> Some(1)
+        player2Won.get(game) -> Some(2)
+        else -> None
     }
 }

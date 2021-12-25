@@ -1,7 +1,9 @@
 package magelle.tcg
 
+import arrow.core.Some
 import assertk.assertThat
 import assertk.assertions.isEqualTo
+import assertk.assertions.isTrue
 import kotlin.test.Test
 
 class TcgTest {
@@ -149,7 +151,25 @@ class TcgTest {
         assertThat(activePlayer.get(game)).isEqualTo(player1.get(game))
     }
 
-    private fun aDeck() =
-        Deck(listOf(0, 0, 1, 1, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 5, 5, 6, 6, 7, 8).map { Card(it) })
+    @Test
+    fun `If the opponent player’s Health drops to or below zero the active player wins the game`() {
+        val game = createGame(aDeck(listOf(1, 2, 3, 4, 5, 6, 7, 2, 0, 0, 0)), aDeck())
+            .let(drawHands)
+            .let(drawHandHandicapCard)
+            .let(startTurn).let(playCard(Card(1))).let(endTurn).let(endTurn)
+            .let(startTurn).let(playCard(Card(2))).let(endTurn).let(endTurn)
+            .let(startTurn).let(playCard(Card(3))).let(endTurn).let(endTurn)
+            .let(startTurn).let(playCard(Card(4))).let(endTurn).let(endTurn)
+            .let(startTurn).let(playCard(Card(5))).let(endTurn).let(endTurn)
+            .let(startTurn).let(playCard(Card(6))).let(endTurn).let(endTurn)
+            .let(startTurn).let(playCard(Card(7))).let(endTurn).let(endTurn)
+            .let(startTurn).let(playCard(Card(2))).let(endTurn).let(endTurn)
+
+        assertThat(isGameOver.get(game)).isTrue()
+        assertThat(winner.get(game)).isEqualTo(Some(1))
+    }
+
+    private fun aDeck(cards: List<Int> = listOf(0, 0, 1, 1, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 5, 5, 6, 6, 7, 8)) =
+        Deck(cards.map { Card(it) })
 
 }
