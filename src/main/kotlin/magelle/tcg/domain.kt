@@ -154,6 +154,7 @@ val activePlayerMana = activePlayer compose playerManaCount
 val player1Health = player1 compose playerHealth
 val player2Health = player2 compose playerHealth
 val opponentPlayerHealth = opponentPlayer compose playerHealth
+val activePlayerHand = activePlayer compose playerHand compose handCards
 
 val activePlayerGainManaSlot = activePlayerManaSlots.lift(Int::inc)
 val fillActivePlayerManaSlots = activePlayer.lift(fillManaSlots)
@@ -161,13 +162,19 @@ val activePlayerDrawACard = activePlayer.lift(::drawCard)
 
 val reduceActivePLayerMana = { manaCost: Int -> activePlayerMana.lift { mana -> mana - manaCost } }
 val reduceOpponentHealth = { manaCost: Int -> opponentPlayerHealth.lift { health -> health - manaCost } }
+val discardCardFromActivePlayerHand =
+    { manaCost: Int -> activePlayerHand.lift { handCards -> handCards - Card(manaCost) } }
 
 val activePlayerPlayCard = { card: Card ->
-    reduceActivePLayerMana(card.manaCost) compose reduceOpponentHealth(card.manaCost)
+    discardCardFromActivePlayerHand(card.manaCost) compose
+            reduceActivePLayerMana(card.manaCost) compose
+            reduceOpponentHealth(card.manaCost)
 }
 
-val nextPlayer = activePlayerNumber.lift { when(it) {
-    1 -> 2
-    2 -> 1
-    else -> throw IllegalStateException("Should not got there :S")
-} }
+val nextPlayer = activePlayerNumber.lift {
+    when (it) {
+        1 -> 2
+        2 -> 1
+        else -> throw IllegalStateException("Should not got there :S")
+    }
+}
