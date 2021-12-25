@@ -23,6 +23,10 @@ dependencies {
     implementation("org.jetbrains.exposed:exposed-dao:0.36.2")
     implementation("org.jetbrains.exposed:exposed-jdbc:0.36.2")
 
+    implementation("io.ktor:ktor-server-core:1.6.7")
+    implementation("io.ktor:ktor-server-netty:1.6.7")
+    implementation("ch.qos.logback:logback-classic:1.2.5")
+
     testImplementation(kotlin("test"))
     testImplementation("com.willowtreeapps.assertk:assertk-jvm:0.25")
 }
@@ -36,5 +40,5 @@ tasks.withType<KotlinCompile> {
 }
 
 application {
-    mainClass.set("MainKt")
+    mainClass.set("io.ktor.server.netty.EngineMain")
 }
