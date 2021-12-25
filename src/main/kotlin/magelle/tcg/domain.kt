@@ -99,11 +99,13 @@ val playerLensFromNumber = { number: Int ->
         else -> throw IllegalStateException("Should not got there :S")
     }
 }
-val opponent = { active: Int -> when(active) {
-    1 -> 2
-    2 -> 1
-    else -> throw IllegalStateException("Should not got there :S")
-} }
+val opponent = { active: Int ->
+    when (active) {
+        1 -> 2
+        2 -> 1
+        else -> throw IllegalStateException("Should not got there :S")
+    }
+}
 val opponentPlayerLens = { game: Game -> playerLensFromNumber(opponent(game.activePlayer)) }
 
 val activePlayer = Lens<Game, Game, Player, Player>(
