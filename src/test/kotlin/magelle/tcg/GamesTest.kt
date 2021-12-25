@@ -25,10 +25,16 @@ class GamesTest {
         assertThat(savedGame).isEqualTo(game)
     }
 
-    @Disabled
     @Test
     fun `can update an existing game`() {
+        val initialGameState = aGame()
+        val currentGameState = aGame()
 
+        val id = save(initialGameState)
+        update(id, currentGameState)
+        val savedGame = findById(id)
+
+        assertThat(savedGame).isEqualTo(currentGameState)
     }
 }
 
@@ -54,7 +60,7 @@ fun aHand(): Hand = Hand(cards = listOfInt(genInt = aCard, minSize = 0, maxSize 
 
 fun aDeck(): Deck = Deck(cards = listOfInt(genInt = aCard, minSize = 0, maxSize = 20))
 
-fun aManaSlots(): ManaSlots = anInt(0, 20)
+fun aManaSlots(): ManaSlots = anInt(1, 20)
     .let { slots -> ManaSlots(slots = slots, mana = anInt(0, slots)) }
 
 val aCard = { Card(anInt(0, 9)) }

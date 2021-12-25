@@ -1,10 +1,7 @@
 package magelle.tcg
 
-import org.jetbrains.exposed.sql.ResultRow
+import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
-import org.jetbrains.exposed.sql.batchInsert
-import org.jetbrains.exposed.sql.insertAndGetId
-import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.util.*
 
@@ -12,6 +9,17 @@ fun save(game: Game): UUID = transaction {
     val p1Id = insertPlayer(game.player1)
     val p2Id = insertPlayer(game.player2)
     insertGame(game, p1Id, p2Id).value
+}
+
+fun update(id: UUID, game: Game): Unit = transaction {
+    Games.select(Games.id.eq(id))
+        .firstOrNull()?.let {
+            val p1Id = it[Games.player1].value
+            val p2Id = it[Games.player2].value
+            updatePlayer(p1Id, game.player1)
+            updatePlayer(p2Id, game.player2)
+            updateGame(id, game, p1Id, p2Id)
+        }
 }
 
 fun findById(id: UUID): Game? = transaction {
@@ -74,6 +82,43 @@ private val insertPlayer = { player: Player ->
         it[health] = player.health
         it[manaSlots] = player.manaSlots.slots
         it[mana] = player.manaSlots.mana
+    }
+}
+
+
+private fun updatePlayer(id: UUID, player: Player) {
+    Players.update({ Players.id.eq(id) }) {
+        it[health] = player.health
+        it[manaSlots] = player.manaSlots.slots
+        it[mana] = player.manaSlots.mana
+    }
+    replaceHand(id, player.hand)
+    replaceDeck(id, player.deck)
+}
+
+private fun replaceDeck(pId: UUID, deck: Deck) {
+    deleteDeck(pId)
+    insertDeck(deck, pId)
+}
+
+private fun replaceHand(pId: UUID, hand: Hand) {
+    deleteHand(pId)
+    insertHand(hand, pId)
+}
+
+fun deleteDeck(pId: UUID) {
+    Decks.deleteWhere { Decks.player.eq(pId) }
+}
+
+fun deleteHand(pId: UUID) {
+    Hands.deleteWhere { Hands.player.eq(pId) }
+}
+
+fun updateGame(gId: UUID, game: Game, p1Id: UUID, p2Id: UUID) {
+    Games.update ({ Games.id.eq(gId) }) {
+        it[activePlayer] = game.activePlayer
+        it[player1] = p1Id
+        it[player2] = p2Id
     }
 }
 
