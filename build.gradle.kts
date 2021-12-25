@@ -18,6 +18,11 @@ dependencies {
     implementation("io.arrow-kt:arrow-core")
     implementation("io.arrow-kt:arrow-optics")
 
+    implementation( "com.h2database:h2:1.4.200")
+    implementation("org.jetbrains.exposed:exposed-core:0.36.2")
+    implementation("org.jetbrains.exposed:exposed-dao:0.36.2")
+    implementation("org.jetbrains.exposed:exposed-jdbc:0.36.2")
+
     testImplementation(kotlin("test"))
     testImplementation("com.willowtreeapps.assertk:assertk-jvm:0.25")
 }
