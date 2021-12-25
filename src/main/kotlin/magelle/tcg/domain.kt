@@ -7,8 +7,6 @@ data class Card(
     val manaCost: Int
 )
 
-val cardManaCost = Getter(Card::manaCost)
-
 data class Deck(
     val cards: List<Card>
 )
@@ -72,7 +70,8 @@ val playerHand = Lens<Player, Player, Hand, Hand>(
 
 data class Game(
     val player1: Player,
-    val player2: Player
+    val player2: Player,
+    val activePlayer: Int
 )
 
 val player1 = Lens<Game, Game, Player, Player>(
@@ -83,6 +82,24 @@ val player1 = Lens<Game, Game, Player, Player>(
 val player2 = Lens<Game, Game, Player, Player>(
     get = Game::player2,
     set = { game, player -> game.copy(player2 = player) }
+)
+
+val activePlayerNumber = Lens<Game, Game, Int, Int>(
+    get = Game::activePlayer,
+    set = { game, player -> game.copy(activePlayer = player) }
+)
+
+val activePlayerLens = { game: Game ->
+    when (game.activePlayer) {
+        1 -> player1
+        2 -> player2
+        else -> throw IllegalStateException("Should not got there :S")
+    }
+}
+
+val activePlayer = Lens<Game, Game, Player, Player>(
+    get = { game -> activePlayerLens(game).get(game) },
+    set = { game, player -> activePlayerLens(game).set(game, player) }
 )
 
 val playerDeckSize = playerDeck compose deckCards compose deckSize
@@ -122,9 +139,9 @@ val player2Mana = player2 compose playerManaCount
 val player1Health = player1 compose playerHealth
 val player2Health = player2 compose playerHealth
 
-val addManaSlot = player1ManaSlots.lift(Int::inc)
+val activePlayerGainManaSlot = player1ManaSlots.lift(Int::inc)
 val fillActivePlayerManaSlots = player1.lift(fillManaSlots)
-val activePlayerDrawCard = player1DrawCard
+val activePlayerDrawACard = player1DrawCard
 
 val reduceActivePLayerMana = { manaCost: Int -> player1Mana.lift { mana -> mana - manaCost } }
 val reduceOpponentHealth = { manaCost: Int -> player2Health.lift { health -> health - manaCost } }
@@ -132,3 +149,9 @@ val reduceOpponentHealth = { manaCost: Int -> player2Health.lift { health -> hea
 val activePlayerPlayCard = { card: Card ->
     reduceActivePLayerMana(card.manaCost) compose reduceOpponentHealth(card.manaCost)
 }
+
+val nextPlayer = activePlayerNumber.lift { when(it) {
+    1 -> 2
+    2 -> 1
+    else -> throw IllegalStateException("Should not got there :S")
+} }

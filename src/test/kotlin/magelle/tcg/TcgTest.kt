@@ -94,6 +94,16 @@ class TcgTest {
         assertThat(player2Health.get(game)).isEqualTo(30 - 1)
     }
 
+    @Test
+    fun `end turn`() {
+        val game = createGame(aDeck(), aDeck())
+            .let(drawHands)
+            .let(drawHandHandicapCard)
+            .let(endTurn)
+
+        assertThat(activePlayer.get(game)).isEqualTo(player2.get(game))
+    }
+
     private fun aDeck() =
         Deck(listOf(0, 0, 1, 1, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 5, 5, 6, 6, 7, 8).map { Card(it) })
 
