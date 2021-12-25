@@ -2,6 +2,7 @@ package magelle.tcg
 
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
+import org.jetbrains.exposed.sql.statements.UpdateBuilder
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.util.*
 
@@ -78,22 +79,23 @@ private fun insertPlayer(player: Player): UUID {
 }
 
 private val insertPlayer = { player: Player ->
-    Players.insertAndGetId {
-        it[health] = player.health
-        it[manaSlots] = player.manaSlots.slots
-        it[mana] = player.manaSlots.mana
-    }
+    Players.insertAndGetId { map(it, player) }
 }
 
 
 private fun updatePlayer(id: UUID, player: Player) {
-    Players.update({ Players.id.eq(id) }) {
-        it[health] = player.health
-        it[manaSlots] = player.manaSlots.slots
-        it[mana] = player.manaSlots.mana
-    }
+    Players.update({ Players.id.eq(id) }) { map(it, player) }
     replaceHand(id, player.hand)
     replaceDeck(id, player.deck)
+}
+
+private fun Players.map(
+    it: UpdateBuilder<Int>,
+    player: Player
+) {
+    it[health] = player.health
+    it[manaSlots] = player.manaSlots.slots
+    it[mana] = player.manaSlots.mana
 }
 
 private fun replaceDeck(pId: UUID, deck: Deck) {
@@ -115,19 +117,22 @@ fun deleteHand(pId: UUID) {
 }
 
 fun updateGame(gId: UUID, game: Game, p1Id: UUID, p2Id: UUID) {
-    Games.update ({ Games.id.eq(gId) }) {
-        it[activePlayer] = game.activePlayer
-        it[player1] = p1Id
-        it[player2] = p2Id
-    }
+    Games.update({ Games.id.eq(gId) }) { map(it, game, p1Id, p2Id) }
 }
 
 private val insertGame = { game: Game, p1Id: UUID, p2Id: UUID ->
-    Games.insertAndGetId {
-        it[activePlayer] = game.activePlayer
-        it[player1] = p1Id
-        it[player2] = p2Id
-    }
+    Games.insertAndGetId { map(it, game, p1Id, p2Id) }
+}
+
+private fun Games.map(
+    it: UpdateBuilder<Int>,
+    game: Game,
+    p1Id: UUID,
+    p2Id: UUID
+) {
+    it[activePlayer] = game.activePlayer
+    it[player1] = p1Id
+    it[player2] = p2Id
 }
 
 private val insertHand = { hand: Hand, pId: UUID ->
