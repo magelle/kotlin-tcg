@@ -97,9 +97,22 @@ val activePlayerLens = { game: Game ->
     }
 }
 
+val opponentPlayerLens = { game: Game ->
+    when (game.activePlayer) {
+        1 -> player2
+        2 -> player1
+        else -> throw IllegalStateException("Should not got there :S")
+    }
+}
+
 val activePlayer = Lens<Game, Game, Player, Player>(
     get = { game -> activePlayerLens(game).get(game) },
     set = { game, player -> activePlayerLens(game).set(game, player) }
+)
+
+val opponentPlayer = Lens<Game, Game, Player, Player>(
+    get = { game -> opponentPlayerLens(game).get(game) },
+    set = { game, player -> opponentPlayerLens(game).set(game, player) }
 )
 
 val playerDeckSize = playerDeck compose deckCards compose deckSize
@@ -134,17 +147,20 @@ val player1DrawHand = player1DrawCard compose player1DrawCard compose player1Dra
 val player2DrawHand = player2DrawCard compose player2DrawCard compose player2DrawCard
 val player1ManaSlots = player1 compose playerManaSlots
 val player2ManaSlots = player2 compose playerManaSlots
+val activePlayerManaSlots = activePlayer compose playerManaSlots
 val player1Mana = player1 compose playerManaCount
 val player2Mana = player2 compose playerManaCount
+val activePlayerMana = activePlayer compose playerManaCount
 val player1Health = player1 compose playerHealth
 val player2Health = player2 compose playerHealth
+val opponentPlayerHealth = opponentPlayer compose playerHealth
 
-val activePlayerGainManaSlot = player1ManaSlots.lift(Int::inc)
-val fillActivePlayerManaSlots = player1.lift(fillManaSlots)
-val activePlayerDrawACard = player1DrawCard
+val activePlayerGainManaSlot = activePlayerManaSlots.lift(Int::inc)
+val fillActivePlayerManaSlots = activePlayer.lift(fillManaSlots)
+val activePlayerDrawACard = activePlayer.lift(::drawCard)
 
-val reduceActivePLayerMana = { manaCost: Int -> player1Mana.lift { mana -> mana - manaCost } }
-val reduceOpponentHealth = { manaCost: Int -> player2Health.lift { health -> health - manaCost } }
+val reduceActivePLayerMana = { manaCost: Int -> activePlayerMana.lift { mana -> mana - manaCost } }
+val reduceOpponentHealth = { manaCost: Int -> opponentPlayerHealth.lift { health -> health - manaCost } }
 
 val activePlayerPlayCard = { card: Card ->
     reduceActivePLayerMana(card.manaCost) compose reduceOpponentHealth(card.manaCost)

@@ -104,6 +104,22 @@ class TcgTest {
         assertThat(activePlayer.get(game)).isEqualTo(player2.get(game))
     }
 
+    @Test
+    fun `next player start turn`() {
+        val game = createGame(aDeck(), aDeck())
+            .let(drawHands)
+            .let(drawHandHandicapCard)
+            .let(endTurn)
+            .let(startTurn)
+
+        // Add mana slot
+        assertThat(player2ManaSlots.get(game)).isEqualTo(1)
+        // Fill mana slots
+        assertThat(player2Mana.get(game)).isEqualTo(1)
+        // Draw a card initial hand (3) + handicap card (1) + new card (1)
+        assertThat(player2HandSize.get(game)).isEqualTo(3 + 1 + 1)
+    }
+
     private fun aDeck() =
         Deck(listOf(0, 0, 1, 1, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 5, 5, 6, 6, 7, 8).map { Card(it) })
 
