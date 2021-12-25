@@ -91,21 +91,20 @@ val activePlayerNumber = Lens<Game, Game, Int, Int>(
     set = { game, player -> game.copy(activePlayer = player) }
 )
 
-val activePlayerLens = { game: Game ->
-    when (game.activePlayer) {
+val activePlayerLens = { game: Game -> playerLensFromNumber(game.activePlayer) }
+val playerLensFromNumber = { number: Int ->
+    when (number) {
         1 -> player1
         2 -> player2
         else -> throw IllegalStateException("Should not got there :S")
     }
 }
-
-val opponentPlayerLens = { game: Game ->
-    when (game.activePlayer) {
-        1 -> player2
-        2 -> player1
-        else -> throw IllegalStateException("Should not got there :S")
-    }
-}
+val opponent = { active: Int -> when(active) {
+    1 -> 2
+    2 -> 1
+    else -> throw IllegalStateException("Should not got there :S")
+} }
+val opponentPlayerLens = { game: Game -> playerLensFromNumber(opponent(game.activePlayer)) }
 
 val activePlayer = Lens<Game, Game, Player, Player>(
     get = { game -> activePlayerLens(game).get(game) },
@@ -177,13 +176,7 @@ val activePlayerPlayCard = { card: Card ->
             reduceOpponentHealth(card.manaCost)
 }
 
-val nextPlayer = activePlayerNumber.lift {
-    when (it) {
-        1 -> 2
-        2 -> 1
-        else -> throw IllegalStateException("Should not got there :S")
-    }
-}
+val nextPlayer = activePlayerNumber.lift(opponent)
 
 val player1Won = Getter { game: Game -> player2Health.get(game) <= 0 }
 val player2Won = Getter { game: Game -> player1Health.get(game) <= 0 }
