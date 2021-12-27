@@ -1,5 +1,6 @@
-package magelle.tcg
+package magelle.tcg.repo
 
+import magelle.tcg.core.*
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.statements.UpdateBuilder

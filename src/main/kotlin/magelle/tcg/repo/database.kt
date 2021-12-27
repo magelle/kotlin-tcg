@@ -1,4 +1,4 @@
-package magelle.tcg
+package magelle.tcg.repo
 
 import org.jetbrains.exposed.dao.id.UUIDTable
 import org.jetbrains.exposed.sql.*

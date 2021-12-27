@@ -1,4 +1,4 @@
-package magelle.tcg
+package magelle.tcg.core
 
 import arrow.core.None
 import arrow.core.Some

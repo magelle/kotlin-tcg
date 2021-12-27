@@ -4,6 +4,7 @@ import arrow.core.Some
 import assertk.assertThat
 import assertk.assertions.isEqualTo
 import assertk.assertions.isTrue
+import magelle.tcg.core.*
 import kotlin.test.Test
 
 class TcgTest {

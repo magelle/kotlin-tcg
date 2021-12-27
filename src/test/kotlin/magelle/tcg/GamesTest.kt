@@ -2,7 +2,8 @@ package magelle.tcg
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
-import org.junit.jupiter.api.Disabled
+import magelle.tcg.core.*
+import magelle.tcg.repo.*
 import kotlin.random.Random
 import kotlin.test.BeforeTest
 import kotlin.test.Test
