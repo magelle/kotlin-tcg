@@ -2,6 +2,7 @@ package magelle.tcg
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
+import kotlinx.coroutines.runBlocking
 import magelle.tcg.core.*
 import magelle.tcg.repo.*
 import kotlin.random.Random
@@ -11,13 +12,13 @@ import kotlin.test.Test
 class GamesTest {
 
     @BeforeTest
-    fun beforeTest() {
+    fun beforeTest() = runBlocking {
         dbConnect()
         buildSchema()
     }
 
     @Test
-    fun `can save a new game`() {
+    fun `can save a new game`() = runBlocking {
         val game = aGame()
 
         val id = save(game)
@@ -27,7 +28,7 @@ class GamesTest {
     }
 
     @Test
-    fun `can update an existing game`() {
+    fun `can update an existing game`() = runBlocking {
         val initialGameState = aGame()
         val currentGameState = aGame()
 

@@ -4,15 +4,15 @@ import org.jetbrains.exposed.dao.id.UUIDTable
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.transaction
 
-val dbConnect = {
+val dbConnect = suspend {
     Database.connect(
         url = "jdbc:h2:mem:test;DB_CLOSE_DELAY=-1",
         driver = "org.h2.Driver"
     )
 }
 
-val buildSchema = {
-    transaction {
+val buildSchema = suspend {
+    suspendTransaction {
         SchemaUtils.create(Players)
         SchemaUtils.create(Decks)
         SchemaUtils.create(Hands)
@@ -41,3 +41,5 @@ object Games : UUIDTable() {
     val player1 = reference("player_1_id", Players.id)
     val player2 = reference("player_2_id", Players.id)
 }
+
+suspend fun <T> suspendTransaction(statement: Transaction.() -> T) = transaction(null, statement)

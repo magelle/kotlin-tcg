@@ -7,13 +7,13 @@ import org.jetbrains.exposed.sql.statements.UpdateBuilder
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.util.*
 
-fun save(game: Game): UUID = transaction {
+suspend fun save(game: Game): UUID = suspendTransaction {
     val p1Id = insertPlayer(game.player1)
     val p2Id = insertPlayer(game.player2)
     insertGame(game, p1Id, p2Id).value
 }
 
-fun update(id: UUID, game: Game): Unit = transaction {
+suspend fun update(id: UUID, game: Game): Unit = suspendTransaction {
     Games.select(Games.id.eq(id))
         .firstOrNull()?.let {
             val p1Id = it[Games.player1].value
@@ -24,7 +24,7 @@ fun update(id: UUID, game: Game): Unit = transaction {
         }
 }
 
-fun findById(id: UUID): Game? = transaction {
+suspend fun findById(id: UUID): Game? = suspendTransaction {
     Games.select(Games.id.eq(id))
         .map { buildGame(it) }
         .firstOrNull()

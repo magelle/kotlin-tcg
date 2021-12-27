@@ -5,10 +5,10 @@ import io.ktor.application.*
 import io.ktor.http.*
 import io.ktor.response.*
 import io.ktor.routing.*
+import kotlinx.coroutines.runBlocking
 import magelle.tcg.core.*
 import magelle.tcg.repo.findById
 import magelle.tcg.repo.save
-import org.jetbrains.exposed.sql.transactions.transaction
 import java.util.*
 
 fun Application.registerGameRoutes() {
@@ -38,17 +38,15 @@ fun Route.gameRouting() {
 }
 
 val getGame = { id: String ->
-    transaction {
-        findById(UUID.fromString(id))
-            ?.let(mapGameToDTO::get)
-    }
+    runFindById(UUID.fromString(id))
+        ?.let(mapGameToDTO::get)
 }
 
 val newGame = {
     createGame(aDeck(), aDeck())
         .let(drawHands)
         .let(drawHandHandicapCard)
-        .let(::save)
+        .let(runSave)
 }
 
 val aDeck = { Deck(listOf(0, 0, 1, 1, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 5, 5, 6, 6, 7, 8).map(::Card).shuffled()) }
@@ -70,3 +68,6 @@ val mapPlayerToDTO = Getter { player: Player ->
         hand = playerHandCards.get(player).map(Card::manaCost)
     )
 }
+
+val runSave = { game: Game -> runBlocking { save(game) } }
+val runFindById = { id: UUID -> runBlocking { findById(id) } }
