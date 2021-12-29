@@ -11,13 +11,14 @@ import magelle.tcg.repo.findById
 import magelle.tcg.repo.save
 import java.util.*
 
-fun Application.registerGameRoutes() {
-    routing {
-        gameRouting()
-    }
+fun Application.registerGameRoutes() = routing {
+    gameRouting(getGame, newGame)
 }
 
-fun Route.gameRouting() {
+fun Route.gameRouting(
+    getGame: (String) -> GameDTO?,
+    newGame: () -> UUID
+) {
     route("/game") {
         get("{id}") {
             val id = call.parameters["id"] ?: return@get call.respondText(
@@ -32,7 +33,7 @@ fun Route.gameRouting() {
         }
         post {
             val gameId = newGame()
-            call.respondText("Game created : $gameId", status = HttpStatusCode.Created)
+            call.respondText("$gameId", status = HttpStatusCode.Created)
         }
     }
 }
@@ -49,7 +50,13 @@ val newGame = {
         .let(runSave)
 }
 
-val aDeck = { Deck(listOf(0, 0, 1, 1, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 5, 5, 6, 6, 7, 8).map(::Card).shuffled()) }
+val aDeck = {
+    Deck(
+        listOf(0, 0, 1, 1, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 5, 5, 6, 6, 7, 8)
+            .map(::Card)
+            .shuffled()
+    )
+}
 
 val mapGameToDTO = Getter { game: Game ->
     GameDTO(

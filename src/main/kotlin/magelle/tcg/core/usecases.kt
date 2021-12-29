@@ -4,13 +4,11 @@ import arrow.core.compose
 
 val createGame = { player1Deck: Deck,
                    player2Deck: Deck ->
-    createPlayer(player1Deck).let { player1 ->
-        Game(
-            player1 = player1,
-            player2 = createPlayer(player2Deck),
-            activePlayer = 1
-        )
-    }
+    Game(
+        player1 = createPlayer(player1Deck),
+        player2 = createPlayer(player2Deck),
+        activePlayer = 1
+    )
 }
 
 val drawHands = player1DrawHand compose player2DrawHand

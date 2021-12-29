@@ -1,4 +1,4 @@
-package magelle.tcg
+package magelle.tcg.repo
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
